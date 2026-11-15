@@ -466,9 +466,8 @@
 
     .price-table th,
     .price-table td {
-      height: 56px;
-      border-right: 1px solid #e8edf1;
-      border-bottom: 1px solid #e8edf1;
+      height: 52px;
+      border: 0;
       text-align: center;
       vertical-align: middle;
     }
@@ -483,7 +482,7 @@
       font-size: 12px;
       font-weight: 750;
       font-variant-numeric: tabular-nums;
-      box-shadow: 0 1px 0 #d8e0e7;
+      background: #ffffff;
     }
 
     .price-table thead th:first-child {
@@ -492,6 +491,7 @@
       border-right-color: #cfd9e2;
       color: var(--ink-soft);
       background: #eef3f6;
+      box-shadow: inset 0 -1px 0 #d8e0e7;
     }
 
     .price-table tbody .station-name {
@@ -500,7 +500,8 @@
       z-index: 2;
       width: var(--station-col);
       padding: 8px 12px;
-      border-right-color: #cfd9e2;
+      border: 0;
+      border-bottom: 1px solid #edf1f4;
       color: #26384a;
       background: #fbfcfd;
       font-size: 11.5px;
@@ -536,13 +537,17 @@
       min-width: 0;
     }
 
+    .station-label-mobile {
+      display: none;
+    }
+
     .price-table tbody tr:nth-child(even) .station-name {
       background: #f6f9fa;
     }
 
     .price-cell {
       position: relative;
-      padding: 0;
+      padding: 4px 3px;
       cursor: default;
       font-size: 13.5px;
       font-weight: 750;
@@ -560,21 +565,32 @@
     .price-cell .price-value {
       position: relative;
       z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--grade-bg);
+      box-shadow: inset 0 0 0 1px var(--grade-border);
     }
 
     .grade-peak {
+      --grade-bg: var(--peak-bg);
+      --grade-border: var(--peak-border);
       color: var(--peak-text);
-      background: var(--peak-bg);
     }
 
     .grade-flat {
+      --grade-bg: var(--flat-bg);
+      --grade-border: var(--flat-border);
       color: var(--flat-text);
-      background: var(--flat-bg);
     }
 
     .grade-valley {
+      --grade-bg: var(--valley-bg);
+      --grade-border: var(--valley-border);
       color: var(--valley-text);
-      background: var(--valley-bg);
     }
 
     .time-head {
@@ -585,7 +601,6 @@
       color: #ffffff;
       background: linear-gradient(180deg, var(--blue), var(--blue-deep));
       box-shadow:
-        0 1px 0 #d8e0e7,
         inset 0 -3px 0 #9cc0ff;
     }
 
@@ -603,20 +618,15 @@
     }
 
     .price-cell.is-current {
-      z-index: 1;
-      box-shadow:
-        inset 0 0 0 2px #1f65d6,
-        inset 0 0 18px rgba(31, 101, 214, 0.12),
-        0 0 13px rgba(31, 101, 214, 0.24);
+      z-index: 2;
     }
 
-    .price-cell.is-current::after {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: rgba(37, 92, 204, 0.11);
-      content: "";
-      pointer-events: none;
+    .price-cell.is-current .price-value {
+      outline: 2px solid #1f65d6;
+      outline-offset: 1px;
+      box-shadow:
+        inset 0 0 0 999px rgba(37, 92, 204, 0.09),
+        0 0 14px rgba(31, 101, 214, 0.28);
     }
 
     .table-footnote {
@@ -728,8 +738,8 @@
 
     @media (max-width: 520px) {
       :root {
-        --station-col: 220px;
-        --hour-col: 70px;
+        --station-col: 136px;
+        --hour-col: 64px;
       }
 
       h1 {
@@ -746,6 +756,54 @@
 
       .data-meta {
         margin-top: 7px;
+      }
+
+      .price-table th,
+      .price-table td {
+        height: 49px;
+      }
+
+      .price-table thead th {
+        height: 42px;
+        font-size: 11px;
+      }
+
+      .price-table tbody .station-name {
+        padding: 6px 8px;
+        font-size: 9.5px;
+        line-height: 1.2;
+      }
+
+      .station-content {
+        gap: 6px;
+      }
+
+      .station-index {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        font-size: 9px;
+      }
+
+      .station-label-desktop {
+        display: none;
+      }
+
+      .station-label-mobile {
+        display: block;
+        width: 8em;
+        white-space: pre-line;
+      }
+
+      .price-cell {
+        padding: 3px 2px;
+        font-size: 12px;
+      }
+
+      .price-cell .price-value {
+        min-width: 42px;
+        height: 30px;
+        border-radius: 8px;
       }
     }
 
@@ -1302,6 +1360,20 @@
       return `${formatPrice(value)} 元/度`;
     }
 
+    function formatMobileStationName(name) {
+      const characters = Array.from(String(name).replace(/\s+/g, " ").trim());
+      if (characters.length <= 8) {
+        return characters.join("");
+      }
+
+      const firstLine = characters.slice(0, 8).join("");
+      if (characters.length <= 16) {
+        return `${firstLine}\n${characters.slice(8).join("")}`;
+      }
+
+      return `${firstLine}\n${characters.slice(8, 15).join("")}…`;
+    }
+
     function setStatus(type, message) {
       statusElement.className = `status-message ${type || ""}`.trim();
       statusElement.textContent = message;
@@ -1384,15 +1456,23 @@
         const stationCell = document.createElement("th");
         const stationContent = document.createElement("div");
         const stationNumber = document.createElement("span");
-        const stationLabel = document.createElement("span");
+        const stationLabelDesktop = document.createElement("span");
+        const stationLabelMobile = document.createElement("span");
         stationCell.scope = "row";
         stationCell.className = "station-name";
         stationContent.className = "station-content";
         stationNumber.className = "station-index";
         stationNumber.textContent = String(stationIndex + 1);
-        stationLabel.className = "station-label";
-        stationLabel.textContent = station.name;
-        stationContent.append(stationNumber, stationLabel);
+        stationLabelDesktop.className = "station-label station-label-desktop";
+        stationLabelDesktop.textContent = station.name;
+        stationLabelMobile.className = "station-label station-label-mobile";
+        stationLabelMobile.textContent = formatMobileStationName(station.name);
+        stationLabelMobile.title = station.name;
+        stationContent.append(
+          stationNumber,
+          stationLabelDesktop,
+          stationLabelMobile
+        );
         stationCell.appendChild(stationContent);
         row.appendChild(stationCell);
 
